@@ -1,0 +1,187 @@
+import 'package:flutter/material.dart';
+
+// Route constants (best practice from notes)
+class NamedRoutes {
+  static const String home = '/named-home';
+  static const String products = '/named-products';
+  static const String details = '/named-details';
+  static const String profile = '/named-profile';
+}
+
+class NamedRoutesScreen extends StatelessWidget {
+  const NamedRoutesScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Named Routes Demo'),
+        backgroundColor: Colors.purple,
+        elevation: 0,
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.purple.shade700, Colors.purple.shade200],
+          ),
+        ),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.route,
+                  size: 80,
+                  color: Colors.white,
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Named Routes Navigation',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Using route constants and pushNamed()',
+                  style: TextStyle(fontSize: 16, color: Colors.white70),
+                ),
+                const SizedBox(height: 40),
+                
+                // Demo buttons using named routes
+                _buildNamedRouteButton(
+                  context,
+                  'Go to Products',
+                  NamedRoutes.products,
+                  Icons.shopping_bag,
+                ),
+                
+                const SizedBox(height: 15),
+                
+                _buildNamedRouteButton(
+                  context,
+                  'Go to Profile',
+                  NamedRoutes.profile,
+                  Icons.person,
+                ),
+                
+                const SizedBox(height: 30),
+                
+                // Info card
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Route Constants:',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 8),
+                        _buildRouteCode('static const String home = \'/\';'),
+                        _buildRouteCode('static const String products = \'/products\';'),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Usage:',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 4),
+                        _buildRouteCode('Navigator.pushNamed(context, AppRoutes.products);'),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNamedRouteButton(BuildContext context, String label, String route, IconData icon) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          // DEMO: Navigator.pushNamed()
+          Navigator.pushNamed(context, route);
+        },
+        icon: Icon(icon),
+        label: Text(label),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.purple,
+          padding: const EdgeInsets.symmetric(vertical: 15),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRouteCode(String code) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(8),
+      margin: const EdgeInsets.only(bottom: 4),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        code,
+        style: const TextStyle(
+          fontFamily: 'monospace',
+          fontSize: 12,
+        ),
+      ),
+    );
+  }
+}
+
+// Products screen (reached via named route)
+class NamedProductsScreen extends StatelessWidget {
+  const NamedProductsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Products'),
+        backgroundColor: Colors.purple,
+      ),
+      body: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: 5,
+        itemBuilder: (context, index) {
+          return Card(
+            child: ListTile(
+              leading: CircleAvatar(
+                child: Text('${index + 1}'),
+              ),
+              title: Text('Product ${index + 1}'),
+              subtitle: Text('UGX ${(index + 1) * 100000}'),
+              onTap: () {
+                // Navigate to details with arguments
+                Navigator.pushNamed(
+                  context,
+                  NamedRoutes.details,
+                  arguments: {
+                    'id': index + 1,
+                    'name': 'Product ${index + 1}',
+                    'price': (index + 1) * 100000,
+                  },
+                );
+              },
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
