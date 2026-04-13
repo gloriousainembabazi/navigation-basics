@@ -1,6 +1,5 @@
-// second_screen.dart
 import 'package:flutter/material.dart';
-import 'third_screen.dart';
+import 'package:go_router/go_router.dart';
 
 class SecondScreen extends StatelessWidget {
   final String studentName;
@@ -25,7 +24,7 @@ class SecondScreen extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.pop(),
         ),
         actions: [
           IconButton(
@@ -100,7 +99,7 @@ class SecondScreen extends StatelessWidget {
                       children: [
                         Expanded(
                           child: OutlinedButton.icon(
-                            onPressed: () => Navigator.pop(context),
+                            onPressed: () => context.pop(),
                             icon: const Icon(Icons.arrow_back),
                             label: const Text('Back'),
                             style: OutlinedButton.styleFrom(
@@ -112,16 +111,14 @@ class SecondScreen extends StatelessWidget {
                         Expanded(
                           child: ElevatedButton.icon(
                             onPressed: () {
-                              // Navigate to third screen with data
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ThirdScreen(
-                                    studentName: studentName,
-                                    studentCourse: studentCourse,
-                                    additionalInfo: 'Student has completed ${studentYear * 8} courses',
-                                  ),
-                                ),
+                              // Navigate to third screen with extra data
+                              context.push(
+                                '/third',
+                                extra: {
+                                  'studentName': studentName,
+                                  'studentCourse': studentCourse,
+                                  'additionalInfo': 'Student has completed ${studentYear * 8} courses',
+                                },
                               );
                             },
                             icon: const Icon(Icons.arrow_forward),

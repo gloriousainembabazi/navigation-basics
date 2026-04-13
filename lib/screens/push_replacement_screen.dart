@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class PushReplacementScreen extends StatelessWidget {
   const PushReplacementScreen({super.key});
@@ -7,9 +8,13 @@ class PushReplacementScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Push Replacement'),
+        title: const Text('Push Replacement with go_router'),
         backgroundColor: Colors.deepPurple,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/dashboard'),
+        ),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -32,7 +37,7 @@ class PushReplacementScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
                 const Text(
-                  'Push Replacement Demo',
+                  'Push vs Replace with go_router',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -41,7 +46,7 @@ class PushReplacementScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 const Text(
-                  'Navigator.pushReplacement()',
+                  'context.push() vs context.replace()',
                   style: TextStyle(fontSize: 16, color: Colors.white70),
                 ),
                 const SizedBox(height: 40),
@@ -50,12 +55,7 @@ class PushReplacementScreen extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () {
                     // DEMO: Normal push (adds to stack)
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const NormalPushScreen(),
-                      ),
-                    );
+                    context.push('/normal-push');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
@@ -67,23 +67,18 @@ class PushReplacementScreen extends StatelessWidget {
                 
                 const SizedBox(height: 15),
                 
-                // Push replacement button
+                // Replace button
                 ElevatedButton(
                   onPressed: () {
-                    // DEMO: Push replacement (replaces current)
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ReplacementScreen(),
-                      ),
-                    );
+                    // DEMO: Replace (replaces current)
+                    context.replace('/replacement');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.amber,
                     foregroundColor: Colors.deepPurple,
                     minimumSize: const Size(double.infinity, 50),
                   ),
-                  child: const Text('Push Replacement (Replace Current)'),
+                  child: const Text('Replace (Replace Current)'),
                 ),
                 
                 const SizedBox(height: 30),
@@ -101,15 +96,34 @@ class PushReplacementScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         _buildCompareRow(
-                          'Normal Push:',
+                          'context.push():',
                           'Screen A → Screen B → Screen C\n(Back button returns to B)',
                         ),
                         const SizedBox(height: 8),
                         _buildCompareRow(
-                          'Push Replacement:',
+                          'context.replace():',
                           'Screen A → Screen C\n(Back button returns to A)',
                         ),
                       ],
+                    ),
+                  ),
+                ),
+                
+                const SizedBox(height: 20),
+                
+                // Current route info
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'Current Route: ${GoRouterState.of(context).uri.toString()}',
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 11,
+                      fontFamily: 'monospace',
                     ),
                   ),
                 ),
@@ -142,6 +156,10 @@ class NormalPushScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Normal Push Screen'),
         backgroundColor: Colors.green,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
       ),
       body: Center(
         child: Column(
@@ -150,13 +168,13 @@ class NormalPushScreen extends StatelessWidget {
             const Icon(Icons.add_circle, size: 60, color: Colors.green),
             const SizedBox(height: 20),
             const Text(
-              'This screen was added with\nNavigator.push()',
+              'This screen was added with\ncontext.push()',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 30),
             ElevatedButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => context.pop(),
               child: const Text('Go Back'),
             ),
             const SizedBox(height: 10),
@@ -180,6 +198,10 @@ class ReplacementScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Replacement Screen'),
         backgroundColor: Colors.amber,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
       ),
       body: Center(
         child: Column(
@@ -188,13 +210,13 @@ class ReplacementScreen extends StatelessWidget {
             const Icon(Icons.swap_calls, size: 60, color: Colors.amber),
             const SizedBox(height: 20),
             const Text(
-              'This screen REPLACED the previous one\nwith Navigator.pushReplacement()',
+              'This screen REPLACED the previous one\nwith context.replace()',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 30),
             ElevatedButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => context.pop(),
               child: const Text('Go Back'),
             ),
             const SizedBox(height: 10),

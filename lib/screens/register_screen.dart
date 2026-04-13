@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../main.dart'; // For AppRoutes
+import 'package:go_router/go_router.dart';
 
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
@@ -13,7 +13,7 @@ class RegisterScreen extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/login'),
         ),
       ),
       body: Container(
@@ -198,19 +198,13 @@ class RegisterScreen extends StatelessWidget {
                     // Login link
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text('Already have an account? '),
-                        TextButton(
-                          onPressed: () {
-                            // Navigate back to login
-                            Navigator.pop(context);
-                          },
-                          child: const Text(
-                            'Login',
-                            style: TextStyle(
-                              color: Colors.teal,
-                              fontWeight: FontWeight.bold,
-                            ),
+                      children: const [
+                        Text('Already have an account? '),
+                        Text(
+                          'Login',
+                          style: TextStyle(
+                            color: Colors.teal,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
@@ -232,7 +226,7 @@ class RegisterScreen extends StatelessWidget {
                           SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              'Uses dialog navigation for success message',
+                              'Uses context.go() to clear stack after registration',
                               style: TextStyle(fontSize: 12),
                             ),
                           ),
@@ -252,7 +246,7 @@ class RegisterScreen extends StatelessWidget {
   void _showSuccessDialog(BuildContext context) {
     showDialog(
       context: context,
-      barrierDismissible: false, // Can't dismiss by tapping outside
+      barrierDismissible: false,
       builder: (context) => AlertDialog(
         title: const Icon(Icons.check_circle, color: Colors.green, size: 60),
         content: const Column(
@@ -269,14 +263,10 @@ class RegisterScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.pop(context); // Close dialog
+              context.pop(); // Close dialog
               
-              // DEMO: pushNamedAndRemoveUntil (clear stack)
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                AppRoutes.login,
-                (route) => false,
-              );
+              // Clear entire stack and go to login
+              context.go('/login');
               
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(

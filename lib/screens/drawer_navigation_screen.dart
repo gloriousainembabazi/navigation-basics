@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class DrawerNavigationScreen extends StatelessWidget {
   const DrawerNavigationScreen({super.key});
@@ -10,8 +11,11 @@ class DrawerNavigationScreen extends StatelessWidget {
         title: const Text('Drawer Navigation'),
         backgroundColor: Colors.indigo,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/dashboard'),
+        ),
       ),
-      // The drawer widget
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -50,7 +54,7 @@ class DrawerNavigationScreen extends StatelessWidget {
               title: const Text('Home'),
               onTap: () {
                 Navigator.pop(context); // Close drawer first
-                _showSelectedItem(context, 'Home');
+                context.go('/dashboard');
               },
             ),
             
@@ -68,7 +72,7 @@ class DrawerNavigationScreen extends StatelessWidget {
               title: const Text('Profile'),
               onTap: () {
                 Navigator.pop(context);
-                _showSelectedItem(context, 'Profile');
+                context.push('/profile');
               },
             ),
             
@@ -77,7 +81,7 @@ class DrawerNavigationScreen extends StatelessWidget {
               title: const Text('Settings'),
               onTap: () {
                 Navigator.pop(context);
-                _showSelectedItem(context, 'Settings');
+                context.push('/settings');
               },
             ),
             
@@ -97,7 +101,7 @@ class DrawerNavigationScreen extends StatelessWidget {
               title: const Text('About'),
               onTap: () {
                 Navigator.pop(context);
-                _showSelectedItem(context, 'About');
+                context.push('/about');
               },
             ),
             
@@ -168,6 +172,23 @@ class DrawerNavigationScreen extends StatelessWidget {
                   ),
                 ),
               ),
+              
+              // Current route info
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'Current Route: ${GoRouterState.of(context).uri.toString()}',
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 11,
+                    fontFamily: 'monospace',
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -205,13 +226,13 @@ class DrawerNavigationScreen extends StatelessWidget {
         content: const Text('Are you sure you want to logout?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => context.pop(),
             child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.pop(context); // Close dialog
-              Navigator.pop(context); // Go back to previous screen
+              context.pop(); // Close dialog
+              context.go('/login'); // Clear stack and go to login
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,

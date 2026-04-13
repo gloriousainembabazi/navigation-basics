@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'third_screen.dart';
-import '../main.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfileScreen extends StatelessWidget {
   final String studentName;
   final String studentCourse;
   final int studentYear;
   final double studentGPA;
+  final VoidCallback onLogout;  // Add this parameter
 
   const ProfileScreen({
     super.key,
@@ -14,6 +14,7 @@ class ProfileScreen extends StatelessWidget {
     required this.studentCourse,
     required this.studentYear,
     required this.studentGPA,
+    required this.onLogout,  // Make it required
   });
 
   @override
@@ -25,8 +26,14 @@ class ProfileScreen extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.pop(),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: onLogout,  // Use the onLogout callback
+          ),
+        ],
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -68,7 +75,7 @@ class ProfileScreen extends StatelessWidget {
                       children: [
                         Expanded(
                           child: OutlinedButton.icon(
-                            onPressed: () => Navigator.pop(context),
+                            onPressed: () => context.pop(),
                             icon: const Icon(Icons.arrow_back),
                             label: const Text('Back'),
                             style: OutlinedButton.styleFrom(
@@ -82,15 +89,13 @@ class ProfileScreen extends StatelessWidget {
                         Expanded(
                           child: ElevatedButton.icon(
                             onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ThirdScreen(
-                                    studentName: studentName,
-                                    studentCourse: studentCourse,
-                                    additionalInfo: 'Completed ${studentYear * 8} courses',
-                                  ),
-                                ),
+                              context.push(
+                                '/third',
+                                extra: {
+                                  'studentName': studentName,
+                                  'studentCourse': studentCourse,
+                                  'additionalInfo': 'Completed ${studentYear * 8} courses',
+                                },
                               );
                             },
                             icon: const Icon(Icons.arrow_forward),
@@ -106,10 +111,9 @@ class ProfileScreen extends StatelessWidget {
                     const SizedBox(height: 10),
                     TextButton.icon(
                       onPressed: () {
-                        Navigator.pushNamed(
-                          context,
-                          AppRoutes.details,
-                          arguments: {
+                        context.pushNamed(
+                          'details',
+                          extra: {
                             'name': studentName,
                             'course': studentCourse,
                             'info': 'Accessed via named route',
@@ -119,6 +123,16 @@ class ProfileScreen extends StatelessWidget {
                       icon: const Icon(Icons.route),
                       label: const Text('Open with Named Route'),
                       style: TextButton.styleFrom(foregroundColor: Colors.green),
+                    ),
+                    const SizedBox(height: 10),
+                    OutlinedButton.icon(
+                      onPressed: onLogout,
+                      icon: const Icon(Icons.logout),
+                      label: const Text('Logout'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.red,
+                        side: const BorderSide(color: Colors.red),
+                      ),
                     ),
                   ],
                 ),

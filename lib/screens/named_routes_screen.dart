@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 // Route constants (best practice from notes)
 class NamedRoutes {
@@ -15,9 +16,13 @@ class NamedRoutesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Named Routes Demo'),
+        title: const Text('Named Routes Demo with go_router'),
         backgroundColor: Colors.purple,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/dashboard'),
+        ),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -40,7 +45,7 @@ class NamedRoutesScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
                 const Text(
-                  'Named Routes Navigation',
+                  'Named Routes with go_router',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -49,7 +54,7 @@ class NamedRoutesScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 const Text(
-                  'Using route constants and pushNamed()',
+                  'Using route names with context.pushNamed()',
                   style: TextStyle(fontSize: 16, color: Colors.white70),
                 ),
                 const SizedBox(height: 40),
@@ -80,20 +85,44 @@ class NamedRoutesScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         const Text(
-                          'Route Constants:',
+                          'go_router Named Routes:',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 8),
-                        _buildRouteCode('static const String home = \'/\';'),
-                        _buildRouteCode('static const String products = \'/products\';'),
+                        _buildRouteCode('GoRoute('),
+                        _buildRouteCode('  name: \'products\','),
+                        _buildRouteCode('  path: \'/named-products\','),
+                        _buildRouteCode('  builder: (context, state) => NamedProductsScreen(),'),
+                        _buildRouteCode('),'),
                         const SizedBox(height: 8),
                         const Text(
                           'Usage:',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 4),
-                        _buildRouteCode('Navigator.pushNamed(context, AppRoutes.products);'),
+                        _buildRouteCode('context.pushNamed(\'products\');'),
+                        _buildRouteCode('// or'),
+                        _buildRouteCode('context.push(NamedRoutes.products);'),
                       ],
+                    ),
+                  ),
+                ),
+                
+                const SizedBox(height: 20),
+                
+                // Current route info
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'Current Route: ${GoRouterState.of(context).uri.toString()}',
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 11,
+                      fontFamily: 'monospace',
                     ),
                   ),
                 ),
@@ -110,8 +139,8 @@ class NamedRoutesScreen extends StatelessWidget {
       width: double.infinity,
       child: ElevatedButton.icon(
         onPressed: () {
-          // DEMO: Navigator.pushNamed()
-          Navigator.pushNamed(context, route);
+          // DEMO: context.pushNamed() with go_router
+          context.pushNamed(route.split('/').last);
         },
         icon: Icon(icon),
         label: Text(label),
@@ -119,6 +148,9 @@ class NamedRoutesScreen extends StatelessWidget {
           backgroundColor: Colors.white,
           foregroundColor: Colors.purple,
           padding: const EdgeInsets.symmetric(vertical: 15),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       ),
     );
@@ -154,6 +186,10 @@ class NamedProductsScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Products'),
         backgroundColor: Colors.purple,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
@@ -167,11 +203,10 @@ class NamedProductsScreen extends StatelessWidget {
               title: Text('Product ${index + 1}'),
               subtitle: Text('UGX ${(index + 1) * 100000}'),
               onTap: () {
-                // Navigate to details with arguments
-                Navigator.pushNamed(
-                  context,
+                // Navigate to details with extra data
+                context.push(
                   NamedRoutes.details,
-                  arguments: {
+                  extra: {
                     'id': index + 1,
                     'name': 'Product ${index + 1}',
                     'price': (index + 1) * 100000,

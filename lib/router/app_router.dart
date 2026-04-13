@@ -29,39 +29,12 @@ import 'widgets/bottom_nav_scaffold.dart';
 // Services
 import 'services/auth_service.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'go_router Navigation Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.purple,
-        useMaterial3: true,
-        brightness: Brightness.light,
-      ),
-      darkTheme: ThemeData(
-        primarySwatch: Colors.purple,
-        useMaterial3: true,
-        brightness: Brightness.dark,
-      ),
-      routerConfig: AppRouter.router,
-      debugShowCheckedModeBanner: false,
-    );
-  }
-}
-
 // Route Constants
 class AppRoutes {
   static const String home = '/';
   static const String dashboard = '/dashboard';
   static const String second = '/second';
-  static const String secondBasic = '/second-basic';
+  static const String secondBasic = '/second-basic';  // Added
   static const String third = '/third';
   static const String details = '/details';
   static const String settings = '/settings';
@@ -94,8 +67,10 @@ class AppRouter {
   static final GoRouter router = GoRouter(
     initialLocation: AppRoutes.login,
     
+    // Refresh listenable for reactive auth state changes
     refreshListenable: _authService,
     
+    // Route guard - redirect based on authentication
     redirect: (context, state) {
       final loggedIn = _authService.isLoggedIn;
       final goingToLogin = state.matchedLocation == AppRoutes.login;
@@ -104,22 +79,26 @@ class AppRouter {
       final goingToStack = state.matchedLocation.startsWith('/stack');
       final isPublicRoute = goingToLogin || goingToRegister || goingToClearStack || goingToStack;
       
-      print('📍 Redirect Check - LoggedIn: $loggedIn, Location: ${state.matchedLocation}');
+      // Allow access to these routes without auth
+      if (isPublicRoute) {
+        return null;
+      }
       
+      // Not logged in and trying to access protected route -> redirect to login
       if (!loggedIn && !isPublicRoute) {
-        print('❌ Not logged in, redirecting to login');
         return AppRoutes.login;
       }
       
+      // Already logged in and trying to access login/register -> redirect to dashboard
       if (loggedIn && (goingToLogin || goingToRegister)) {
-        print('✅ Already logged in, redirecting to dashboard');
         return AppRoutes.dashboard;
       }
       
-      print('✅ Allowing access');
+      // No redirect needed
       return null;
     },
     
+    // Error handler for unknown routes
     errorBuilder: (context, state) => Scaffold(
       appBar: AppBar(
         title: const Text('Error'),
@@ -152,14 +131,15 @@ class AppRouter {
     ),
     
     routes: [
-      // ==================== PUBLIC ROUTES (No Login Required) ====================
+      // Public routes (accessible without authentication)
       GoRoute(
         path: AppRoutes.login,
         name: 'login',
         builder: (context, state) => LoginScreen(
           onLogin: () {
-            print('🔐 Login button pressed');
             _authService.login();
+            // Navigate to dashboard after login
+            Future.microtask(() => context.go(AppRoutes.dashboard));
           },
         ),
       ),
@@ -168,11 +148,15 @@ class AppRouter {
         name: 'register',
         builder: (context, state) => const RegisterScreen(),
       ),
+      
+      // Clear Stack Demo Routes (public for learning)
       GoRoute(
         path: AppRoutes.clearStack,
         name: 'clearStack',
         builder: (context, state) => const ClearStackScreen(),
       ),
+      
+      // Stack navigation routes
       GoRoute(
         path: AppRoutes.stack1,
         name: 'stack1',
@@ -189,25 +173,29 @@ class AppRouter {
         builder: (context, state) => const ThirdStackScreen(),
       ),
       
-      // ==================== PROTECTED ROUTES WITH BOTTOM NAVIGATION ====================
+      // Second Basic route (for HomeScreen navigation)
+      GoRoute(
+        path: AppRoutes.secondBasic,
+        name: 'secondBasic',
+        builder: (context, state) => const SecondScreen(),
+      ),
+      
+      // Protected routes with ShellRoute (persistent bottom navigation)
       ShellRoute(
         builder: (context, state, child) {
           return BottomNavScaffold(
             child: child,
-            onLogout: () {
-              print('🔐 Logout from BottomNavScaffold');
-              _authService.logout();
-              context.go(AppRoutes.login);
-            },
+            onLogout: () => _authService.logout(),
           );
         },
         routes: [
-          // Dashboard / Home
+          // Dashboard (Home)
           GoRoute(
             path: AppRoutes.dashboard,
             name: 'dashboard',
-            builder: (context, state) => HomeScreen(),  // Removed const
+            builder: (context, state) => const HomeScreen(),
             routes: [
+              // Nested routes - keep bottom nav visible
               GoRoute(
                 path: 'product/:id',
                 name: 'dashboardProductDetail',
@@ -223,7 +211,7 @@ class AppRouter {
             ],
           ),
           
-          // Products
+          // Products tab
           GoRoute(
             path: AppRoutes.products,
             name: 'products',
@@ -244,47 +232,32 @@ class AppRouter {
             ],
           ),
           
-          // Explore
+          // Explore tab
           GoRoute(
             path: AppRoutes.explore,
             name: 'explore',
             builder: (context, state) => const ExploreScreen(),
           ),
           
-          // Profile
+          // Profile tab
           GoRoute(
             path: AppRoutes.profile,
             name: 'profile',
             builder: (context, state) {
               final extra = state.extra as Map<String, dynamic>?;
               return ProfileScreen(
-                studentName: extra?['name'] ?? 'Ainembabazi Glorious',
+                studentName: extra?['name'] ?? 'John Doe',
                 studentCourse: extra?['course'] ?? 'Computer Science',
                 studentYear: extra?['year'] ?? 3,
                 studentGPA: extra?['gpa'] ?? 3.8,
-                onLogout: () {
-                  print('🔐 Logout from ProfileScreen');
-                  _authService.logout();
-                  context.go(AppRoutes.login);
-                },
+                onLogout: () => _authService.logout(),
               );
             },
           ),
         ],
       ),
       
-      // ==================== STANDALONE ROUTES (No Bottom Navigation) ====================
-      GoRoute(
-        path: AppRoutes.secondBasic,
-        name: 'secondBasic',
-        builder: (context, state) => SecondScreen(
-          studentName: 'Demo Student',
-          studentCourse: 'Computer Science',
-          studentYear: 2,
-          studentGPA: 3.5,
-        ),
-      ),
-      
+      // Standalone routes (outside bottom navigation)
       GoRoute(
         path: AppRoutes.second,
         name: 'second',
@@ -343,12 +316,17 @@ class AppRouter {
         builder: (context, state) => const ContactScreen(),
       ),
       
+      // Demo screens
       GoRoute(
         path: AppRoutes.basicNavigation,
         name: 'basicNavigation',
-        builder: (context, state) => BasicNavigationScreen(),  // Removed const
+        builder: (context, state) => const Scaffold(
+          body: Center(
+            child: Text('Basic Navigation Screen Placeholder'),
+          ),
+        ),
       ),
-      
+
       GoRoute(
         path: AppRoutes.passingData,
         name: 'passingData',
@@ -399,8 +377,9 @@ class AppRouter {
         path: AppRoutes.home,
         name: 'home',
         builder: (context, state) {
+          // Redirect to dashboard if logged in, otherwise login
           if (_authService.isLoggedIn) {
-            return HomeScreen();  // Removed const
+            return const HomeScreen();
           }
           return LoginScreen(onLogin: () => _authService.login());
         },
@@ -409,7 +388,7 @@ class AppRouter {
   );
 }
 
-// Product Detail Screen
+// Product Detail Screen (for nested routes)
 class ProductDetailScreen extends StatelessWidget {
   final String productId;
   final Map<String, dynamic>? product;

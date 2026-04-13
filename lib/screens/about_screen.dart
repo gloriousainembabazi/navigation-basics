@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../main.dart'; // For AppRoutes
+import 'package:go_router/go_router.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -13,7 +13,7 @@ class AboutScreen extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.pop(), // Updated to go_router
         ),
         actions: [
           IconButton(
@@ -93,16 +93,16 @@ class AboutScreen extends StatelessWidget {
               
               // Info cards
               _buildInfoCard(
-                '📚 Navigation Concepts',
+                '📚 Navigation Concepts (go_router)',
                 [
-                  '• Navigator.push() and pop()',
-                  '• Passing data via constructor',
-                  '• Named routes with constants',
-                  '• Arguments with onGenerateRoute',
-                  '• Drawer navigation',
-                  '• Push replacement',
-                  '• Clear stack navigation',
-                  '• Dialog navigation',
+                  '• Declarative routing with GoRouter',
+                  '• Path parameters (/user/:id)',
+                  '• Query parameters (?q=search)',
+                  '• ShellRoute for persistent layouts',
+                  '• Route guards with redirect',
+                  '• context.go() vs context.push()',
+                  '• Deep linking support',
+                  '• Nested routes',
                 ],
               ),
               
@@ -112,11 +112,12 @@ class AboutScreen extends StatelessWidget {
                 '🎯 Features',
                 [
                   '• Student directory with profiles',
-                  '• Login and registration',
+                  '• Login and registration with guards',
                   '• Settings page',
                   '• Contact form',
                   '• About information',
                   '• Responsive design',
+                  '• Bottom navigation with ShellRoute',
                 ],
               ),
               
@@ -126,7 +127,7 @@ class AboutScreen extends StatelessWidget {
                 '👨‍💻 Developer',
                 [
                   '• Course: Flutter Mobile Development',
-                  '• Week 1: Navigation',
+                  '• Week 2: go_router & Deep Linking',
                   '• Student: Your Name',
                   '• Year: 2026',
                 ],
@@ -137,21 +138,21 @@ class AboutScreen extends StatelessWidget {
               _buildInfoCard(
                 '📞 Contact',
                 [
-                  '• Email: student@example.com',
-                  '• Phone: +256 700 123456',
+                  '• Email: gloriousainembabazi16@gmail.com',
+                  '• Phone: +256 750414748',
                   '• Website: www.example.com',
                 ],
               ),
               
               const SizedBox(height: 30),
               
-              // Navigation buttons
+              // Navigation buttons with go_router methods
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: () {
-                        Navigator.pop(context);
+                        context.pop(); // Equivalent to Navigator.pop()
                       },
                       icon: const Icon(Icons.arrow_back),
                       label: const Text('Back'),
@@ -166,15 +167,11 @@ class AboutScreen extends StatelessWidget {
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        // DEMO: pushNamedAndRemoveUntil
-                        Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          AppRoutes.home,
-                          (route) => false,
-                        );
+                        // context.go() replaces the entire stack (like pushNamedAndRemoveUntil)
+                        context.go('/dashboard');
                       },
                       icon: const Icon(Icons.home),
-                      label: const Text('Home'),
+                      label: const Text('Dashboard'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: Colors.indigo,
@@ -187,21 +184,82 @@ class AboutScreen extends StatelessWidget {
               
               const SizedBox(height: 10),
               
-              // Navigation demo info
+              // Additional go_router demo buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton.icon(
+                      onPressed: () {
+                        // context.push() adds to stack (back button works)
+                        context.push('/contact');
+                      },
+                      icon: const Icon(Icons.contact_mail, size: 20),
+                      label: const Text('Contact (push)'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: TextButton.icon(
+                      onPressed: () {
+                        // Navigate with query parameter
+                        context.push('/search?q=about');
+                      },
+                      icon: const Icon(Icons.search, size: 20),
+                      label: const Text('Search (query)'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              
+              const SizedBox(height: 20),
+              
+              // Navigation demo info comparing go_router vs Navigator
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.info, color: Colors.white, size: 20),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        'This screen demonstrates: pop(), pushNamedAndRemoveUntil(), and dialog navigation',
-                        style: TextStyle(color: Colors.white, fontSize: 12),
+                    const Row(
+                      children: [
+                        Icon(Icons.info, color: Colors.white, size: 20),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'go_router Navigation Methods:',
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      '• context.pop() - Go back\n'
+                      '• context.go() - Replace stack (no back)\n'
+                      '• context.push() - Add to stack (has back)\n'
+                      '• context.replace() - Replace current route\n'
+                      '• Deep linking ready with path/query params',
+                      style: TextStyle(color: Colors.white70, fontSize: 11),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Text(
+                        '💡 Tip: Try navigating to /about directly from URL!',
+                        style: TextStyle(color: Colors.white, fontSize: 11),
                       ),
                     ),
                   ],
@@ -236,9 +294,17 @@ class AboutScreen extends StatelessWidget {
             const SizedBox(height: 10),
             ...items.map((item) => Padding(
               padding: const EdgeInsets.only(bottom: 6),
-              child: Text(
-                item,
-                style: const TextStyle(fontSize: 14),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('• ', style: TextStyle(fontSize: 14)),
+                  Expanded(
+                    child: Text(
+                      item.substring(2), // Remove the bullet point from the string
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ),
+                ],
               ),
             )),
           ],

@@ -1,100 +1,32 @@
 import 'package:flutter/material.dart';
-import '../main.dart'; // For AppRoutes
+import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  // Navigation concepts to demonstrate
-  final List<Map<String, dynamic>> navigationItems = const [
-    {
-      'title': 'Basic Navigation',
-      'subtitle': 'Navigator.push() and Navigator.pop()',
-      'route': '/second',
-      'icon': Icons.navigation,
-      'color': Colors.blue,
-      'args': {
-        'name': 'John Musisi',
-        'course': 'Computer Science',
-        'year': 3,
-        'gpa': 3.8
-      }
-    },
-    {
-      'title': 'Passing Data',
-      'subtitle': 'Constructor parameters between screens',
-      'route': '/second',
-      'icon': Icons.data_usage,
-      'color': Colors.orange,
-      'args': {
-        'name': 'Sarah Nabatanzi',
-        'course': 'Software Engineering',
-        'year': 2,
-        'gpa': 3.9
-      }
-    },
-    {
-      'title': 'Named Routes',
-      'subtitle': 'Using route constants and pushNamed()',
-      'route': '/third',
-      'icon': Icons.route,
-      'color': Colors.purple,
-      'args': {
-        'name': 'Michael Okello',
-        'course': 'Information Technology',
-        'info': 'Using named routes with arguments'
-      }
-    },
-    {
-      'title': 'Login Screen',
-      'subtitle': 'Push replacement navigation',
-      'route': '/login',
-      'icon': Icons.login,
-      'color': Colors.green,
-    },
-    {
-      'title': 'Register Screen',
-      'subtitle': 'Dialog navigation demo',
-      'route': '/register',
-      'icon': Icons.app_registration,
-      'color': Colors.teal,
-    },
-    {
-      'title': 'Settings Screen',
-      'subtitle': 'App configuration',
-      'route': '/settings',
-      'icon': Icons.settings,
-      'color': Colors.grey,
-    },
-    {
-      'title': 'About Screen',
-      'subtitle': 'App information',
-      'route': '/about',
-      'icon': Icons.info,
-      'color': Colors.indigo,
-    },
-    {
-      'title': 'Contact Screen',
-      'subtitle': 'Get in touch with us',
-      'route': '/contact',
-      'icon': Icons.contact_mail,
-      'color': Colors.pink,
-    },
-  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Navigation Concepts'),
+        title: const Text('Dashboard'),
         backgroundColor: Colors.purple,
-        elevation: 0,
         centerTitle: true,
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+            tooltip: 'Navigation Menu',
+          ),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings),
+            icon: const Icon(Icons.logout),
             onPressed: () {
-              Navigator.pushNamed(context, AppRoutes.settings);
+              context.go('/login');
             },
+            tooltip: 'Logout',
           ),
         ],
       ),
@@ -104,56 +36,109 @@ class HomeScreen extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.purple.shade700, Colors.purple.shade200],
+            colors: [Colors.purple.shade50, Colors.white],
           ),
         ),
-        child: ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: navigationItems.length,
-          itemBuilder: (context, index) {
-            final item = navigationItems[index];
-            return Card(
-              elevation: 4,
-              margin: const EdgeInsets.only(bottom: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: item['color'].withOpacity(0.2),
-                  child: Icon(
-                    item['icon'],
-                    color: item['color'],
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.dashboard,
+                  size: 80,
+                  color: Colors.purple,
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  'Welcome to Dashboard!',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.purple,
                   ),
                 ),
-                title: Text(
-                  item['title'],
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                const SizedBox(height: 16),
+                const Text(
+                  'You have successfully logged in.',
+                  style: TextStyle(fontSize: 16),
                 ),
-                subtitle: Text(item['subtitle']),
-                trailing: Icon(
-                  Icons.arrow_forward_ios,
-                  color: item['color'],
-                  size: 16,
-                ),
-                onTap: () {
-                  if (item.containsKey('args')) {
-                    // Navigate with arguments
-                    Navigator.pushNamed(
+                const SizedBox(height: 48),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildNavButton(
                       context,
-                      item['route'],
-                      arguments: item['args'],
-                    );
-                  } else {
-                    // Simple navigation
-                    Navigator.pushNamed(context, item['route']);
-                  }
-                },
-              ),
-            );
-          },
+                      'About',
+                      Icons.info,
+                      '/about',
+                      Colors.blue,
+                    ),
+                    _buildNavButton(
+                      context,
+                      'Contact',
+                      Icons.contact_mail,
+                      '/contact',
+                      Colors.green,
+                    ),
+                    _buildNavButton(
+                      context,
+                      'Clear Stack',
+                      Icons.clear_all,
+                      '/clear-stack',
+                      Colors.red,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.purple.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Column(
+                    children: [
+                      Text(
+                        '💡 Navigation Tip:',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        '• Use context.go() to replace stack (no back button)\n'
+                        '• Use context.push() to add to stack (back works)',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildNavButton(
+    BuildContext context,
+    String label,
+    IconData icon,
+    String route,
+    Color color,
+  ) {
+    return Column(
+      children: [
+        FloatingActionButton.small(
+          heroTag: label,
+          onPressed: () => context.push(route),
+          backgroundColor: color,
+          child: Icon(icon),
+        ),
+        const SizedBox(height: 8),
+        Text(label),
+      ],
     );
   }
 
@@ -178,45 +163,153 @@ class HomeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 const Text(
-                  'Navigation Demo',
+                  'go_router Navigation Demo',
                   style: TextStyle(color: Colors.white, fontSize: 18),
                 ),
                 Text(
-                  'Learning Flutter Navigation',
+                  'Ainembabazi Glorious',
                   style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 14),
                 ),
               ],
             ),
           ),
+          // Main Sections
+          const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Text('MAIN', style: TextStyle(color: Colors.grey, fontSize: 12)),
+          ),
           ListTile(
-            leading: const Icon(Icons.home, color: Colors.purple),
-            title: const Text('Home'),
+            leading: const Icon(Icons.dashboard, color: Colors.purple),
+            title: const Text('Dashboard'),
             onTap: () {
               Navigator.pop(context);
+              context.go('/dashboard');
             },
           ),
           ListTile(
-            leading: const Icon(Icons.login, color: Colors.green),
-            title: const Text('Login'),
+            leading: const Icon(Icons.shopping_bag, color: Colors.orange),
+            title: const Text('Products'),
             onTap: () {
               Navigator.pop(context);
-              Navigator.pushNamed(context, AppRoutes.login);
+              context.go('/products');
             },
           ),
           ListTile(
-            leading: const Icon(Icons.app_registration, color: Colors.teal),
-            title: const Text('Register'),
+            leading: const Icon(Icons.explore, color: Colors.green),
+            title: const Text('Explore'),
             onTap: () {
               Navigator.pop(context);
-              Navigator.pushNamed(context, AppRoutes.register);
+              context.go('/explore');
             },
           ),
           ListTile(
-            leading: const Icon(Icons.info, color: Colors.indigo),
+            leading: const Icon(Icons.person, color: Colors.blue),
+            title: const Text('Profile'),
+            onTap: () {
+              Navigator.pop(context);
+              context.go('/profile');
+            },
+          ),
+          const Divider(),
+          
+          // Navigation Concepts
+          const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Text('NAVIGATION CONCEPTS', style: TextStyle(color: Colors.grey, fontSize: 12)),
+          ),
+          ListTile(
+            leading: const Icon(Icons.navigation, color: Colors.teal),
+            title: const Text('Basic Navigation'),
+            subtitle: const Text('push(), pop(), go()'),
+            onTap: () {
+              Navigator.pop(context);
+              context.push('/basic-navigation');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.data_usage, color: Colors.indigo),
+            title: const Text('Passing Data'),
+            subtitle: const Text('Path params, query params, extra'),
+            onTap: () {
+              Navigator.pop(context);
+              context.push('/passing-data');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.architecture, color: Colors.deepPurple),
+            title: const Text('Arguments Demo'),
+            subtitle: const Text('Using state.extra'),
+            onTap: () {
+              Navigator.pop(context);
+              context.push('/arguments');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.clear_all, color: Colors.red),
+            title: const Text('Clear Stack Demo'),
+            subtitle: const Text('context.go() vs push()'),
+            onTap: () {
+              Navigator.pop(context);
+              context.push('/clear-stack');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.chat, color: Colors.pink),
+            title: const Text('Dialog Navigation'),
+            subtitle: const Text('Using showDialog()'),
+            onTap: () {
+              Navigator.pop(context);
+              context.push('/dialog-nav');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.menu, color: Colors.brown),
+            title: const Text('Drawer Navigation'),
+            subtitle: const Text('Navigation drawer'),
+            onTap: () {
+              Navigator.pop(context);
+              context.push('/drawer-nav');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.route, color: Colors.cyan),
+            title: const Text('Named Routes'),
+            subtitle: const Text('Using route names'),
+            onTap: () {
+              Navigator.pop(context);
+              context.push('/named-routes');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.swap_horiz, color: Colors.orange),
+            title: const Text('Push Replacement'),
+            subtitle: const Text('context.replace()'),
+            onTap: () {
+              Navigator.pop(context);
+              context.push('/push-replacement');
+            },
+          ),
+          const Divider(),
+          
+          // Information
+          const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Text('INFORMATION', style: TextStyle(color: Colors.grey, fontSize: 12)),
+          ),
+          ListTile(
+            leading: const Icon(Icons.settings, color: Colors.grey),
+            title: const Text('Settings'),
+            onTap: () {
+              Navigator.pop(context);
+              context.push('/settings');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.info, color: Colors.cyan),
             title: const Text('About'),
             onTap: () {
               Navigator.pop(context);
-              Navigator.pushNamed(context, AppRoutes.about);
+              context.push('/about');
             },
           ),
           ListTile(
@@ -224,55 +317,19 @@ class HomeScreen extends StatelessWidget {
             title: const Text('Contact'),
             onTap: () {
               Navigator.pop(context);
-              Navigator.pushNamed(context, AppRoutes.contact);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.settings, color: Colors.grey),
-            title: const Text('Settings'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.pushNamed(context, AppRoutes.settings);
+              context.push('/contact');
             },
           ),
           const Divider(),
+          
+          // Logout
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
             title: const Text('Logout', style: TextStyle(color: Colors.red)),
             onTap: () {
               Navigator.pop(context);
-              _showLogoutDialog(context);
+              context.go('/login');
             },
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showLogoutDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context); // Close dialog
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                AppRoutes.login,
-                (route) => false, // Clear entire stack
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
-            child: const Text('Logout'),
           ),
         ],
       ),

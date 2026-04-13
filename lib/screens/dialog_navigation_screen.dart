@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class DialogNavigationScreen extends StatelessWidget {
   const DialogNavigationScreen({super.key});
@@ -10,6 +11,16 @@ class DialogNavigationScreen extends StatelessWidget {
         title: const Text('Dialog Navigation'),
         backgroundColor: Colors.pink,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/dashboard'),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.home),
+            onPressed: () => context.go('/dashboard'),
+          ),
+        ],
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -41,7 +52,7 @@ class DialogNavigationScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 const Text(
-                  'Using showDialog()',
+                  'Using showDialog() with go_router',
                   style: TextStyle(fontSize: 16, color: Colors.white70),
                 ),
                 const SizedBox(height: 40),
@@ -87,17 +98,29 @@ class DialogNavigationScreen extends StatelessWidget {
                 
                 const SizedBox(height: 30),
                 
-                // Explanation
+                // Navigation info
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Column(
-                      children: const [
-                        Text(
+                      children: [
+                        const Text(
                           'showDialog() creates a new navigation route\n'
                           'that appears as a dialog overlay',
                           textAlign: TextAlign.center,
                           style: TextStyle(fontSize: 12),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.pink.shade50,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            'Current Route: ${GoRouterState.of(context).uri.toString()}',
+                            style: const TextStyle(fontSize: 10, fontFamily: 'monospace'),
+                          ),
                         ),
                       ],
                     ),
@@ -128,6 +151,9 @@ class DialogNavigationScreen extends StatelessWidget {
           backgroundColor: Colors.white,
           foregroundColor: color,
           padding: const EdgeInsets.symmetric(vertical: 15),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       ),
     );
@@ -142,7 +168,7 @@ class DialogNavigationScreen extends StatelessWidget {
           content: const Text('This is a basic alert dialog.'),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => context.pop(),
               child: const Text('OK'),
             ),
           ],
@@ -160,12 +186,12 @@ class DialogNavigationScreen extends StatelessWidget {
           content: const Text('Are you sure you want to proceed?'),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => context.pop(),
               child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.pop(context); // Close dialog
+                context.pop(); // Close dialog
                 _showResultSnackBar(context, 'Action confirmed!');
               },
               style: ElevatedButton.styleFrom(
@@ -196,13 +222,13 @@ class DialogNavigationScreen extends StatelessWidget {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => context.pop(),
               child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () {
                 if (controller.text.isNotEmpty) {
-                  Navigator.pop(context);
+                  context.pop();
                   _showResultSnackBar(context, 'You entered: ${controller.text}');
                 }
               },
@@ -258,7 +284,7 @@ class DialogNavigationScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ElevatedButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () => context.pop(),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: Colors.purple,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class PassingDataScreen extends StatelessWidget {
   const PassingDataScreen({super.key});
@@ -15,9 +16,13 @@ class PassingDataScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Passing Data Demo'),
+        title: const Text('Passing Data Demo with go_router'),
         backgroundColor: Colors.orange,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/dashboard'),
+        ),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -37,7 +42,7 @@ class PassingDataScreen extends StatelessWidget {
                   Icon(Icons.data_usage, size: 50, color: Colors.white),
                   SizedBox(height: 10),
                   Text(
-                    'Passing Data via Constructor',
+                    'Passing Data via Extra Parameter',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -78,17 +83,15 @@ class PassingDataScreen extends StatelessWidget {
                       subtitle: Text('UGX ${product['price']}'),
                       trailing: const Icon(Icons.arrow_forward),
                       onTap: () {
-                        // PASSING DATA via constructor parameters
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ProductDetailScreen(
-                              productName: product['name'],
-                              productPrice: product['price'],
-                              productQuantity: product['quantity'],
-                              productDescription: product['description'],
-                            ),
-                          ),
+                        // PASSING DATA via extra parameter
+                        context.push(
+                          '/product-detail',
+                          extra: {
+                            'name': product['name'],
+                            'price': product['price'],
+                            'quantity': product['quantity'],
+                            'description': product['description'],
+                          },
                         );
                       },
                     ),
@@ -103,28 +106,29 @@ class PassingDataScreen extends StatelessWidget {
   }
 }
 
-// RECEIVING DATA via constructor parameters
+// RECEIVING DATA via extra parameter
 class ProductDetailScreen extends StatelessWidget {
-  final String productName;
-  final int productPrice;
-  final int productQuantity;
-  final String productDescription;
-
-  const ProductDetailScreen({
-    super.key,
-    required this.productName,
-    required this.productPrice,
-    required this.productQuantity,
-    required this.productDescription,
-  });
+  const ProductDetailScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Get data from extra parameter
+    final data = GoRouterState.of(context).extra as Map<String, dynamic>?;
+    
+    final productName = data?['name'] ?? 'Unknown';
+    final productPrice = data?['price'] ?? 0;
+    final productQuantity = data?['quantity'] ?? 0;
+    final productDescription = data?['description'] ?? 'No description';
+
     return Scaffold(
       appBar: AppBar(
         title: Text(productName),
         backgroundColor: Colors.green,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -167,7 +171,7 @@ class ProductDetailScreen extends StatelessWidget {
                     const SizedBox(height: 30),
                     
                     Text(
-                      'Data passed via constructor parameters',
+                      'Data passed via context.push() extra parameter',
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey.shade600,
@@ -179,7 +183,7 @@ class ProductDetailScreen extends StatelessWidget {
                     const SizedBox(height: 20),
                     
                     ElevatedButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () => context.pop(),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                       ),

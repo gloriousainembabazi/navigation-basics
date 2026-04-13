@@ -1,263 +1,143 @@
 import 'package:flutter/material.dart';
-import '../main.dart'; // For AppRoutes
-import 'home_screen.dart'; // Needed for pushReplacement to HomeScreen
+import 'package:go_router/go_router.dart';
 
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
+class LoginScreen extends StatefulWidget {
+  final VoidCallback onLogin;
+  
+  const LoginScreen({super.key, required this.onLogin});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  bool _isLoggingIn = false;
+
+  void _handleLogin() async {
+    if (_isLoggingIn) return;
+    
+    setState(() {
+      _isLoggingIn = true;
+    });
+    
+    print('🔵 Login button clicked');
+    
+    // Call the login callback
+    widget.onLogin();
+    
+    // Wait a moment for the auth state to update
+    await Future.delayed(const Duration(milliseconds: 100));
+    
+    print('🔵 Navigating to dashboard');
+    
+    // Navigate to dashboard
+    if (mounted) {
+      context.go('/dashboard');
+      setState(() {
+        _isLoggingIn = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login'),
-        backgroundColor: Colors.green,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.green.shade700, Colors.green.shade200],
-          ),
-        ),
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Card(
-              elevation: 8,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.lock_outline,
+                size: 80,
+                color: Colors.purple,
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(30),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Logo
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: Colors.green.shade100,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.lock,
-                        size: 40,
-                        color: Colors.green,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    
-                    const Text(
-                      'Welcome Back',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    
-                    const Text(
-                      'Sign in to continue',
-                      style: TextStyle(
-                        color: Colors.grey,
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    
-                    // Email field
-                    TextField(
-                      keyboardType: TextInputType.emailAddress,
-                      textInputAction: TextInputAction.next,
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                        prefixIcon: const Icon(Icons.email, color: Colors.green),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: Colors.green, width: 2),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 15),
-                    
-                    // Password field
-                    TextField(
-                      obscureText: true,
-                      textInputAction: TextInputAction.done,
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        prefixIcon: const Icon(Icons.lock, color: Colors.green),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: Colors.green, width: 2),
-                        ),
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 10),
-                    
-                    // Forgot password
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () {
-                          _showForgotPasswordDialog(context);
-                        },
-                        child: const Text(
-                          'Forgot Password?',
-                          style: TextStyle(color: Colors.green),
-                        ),
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 20),
-                    
-                    // Login button - pushReplacement
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Show loading dialog
-                          showDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (context) => const Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                          );
-                          
-                          // Simulate login delay
-                          Future.delayed(const Duration(seconds: 2), () {
-                            Navigator.pop(context); // Close loading dialog
-                            
-                            // Navigate to HomeScreen
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const HomeScreen(),
-                              ),
-                            );
-                            
-                            // Show success message
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Login Successful!'),
-                                backgroundColor: Colors.green,
-                                duration: Duration(seconds: 2),
-                              ),
-                            );
-                          });
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          padding: const EdgeInsets.symmetric(vertical: 15),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+              const SizedBox(height: 32),
+              const Text(
+                'Welcome Back!',
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Sign in to continue',
+                style: TextStyle(color: Colors.grey),
+              ),
+              const SizedBox(height: 48),
+              TextField(
+                controller: TextEditingController(text: 'glorious@gmail.com'),
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                  prefixIcon: Icon(Icons.email),
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const TextField(
+                obscureText: true,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  prefixIcon: Icon(Icons.lock),
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () {},
+                  child: const Text('Forgot Password?'),
+                ),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _isLoggingIn ? null : _handleLogin,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: Colors.purple,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: _isLoggingIn
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
                           ),
-                        ),
-                        child: const Text(
+                        )
+                      : const Text(
                           'LOGIN',
                           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         ),
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 15),
-                    
-                    // Register link
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text("Don't have an account? "),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pushNamed(context, AppRoutes.register);
-                          },
-                          child: const Text(
-                            'Register',
-                            style: TextStyle(
-                              color: Colors.green,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    
-                    const SizedBox(height: 10),
-                    
-                    // Demo info box
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.green.shade50,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.info, size: 16, color: Colors.green),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'Uses pushReplacement - cannot go back to login',
-                              style: TextStyle(fontSize: 12),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
                 ),
               ),
-            ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Don't have an account? "),
+                  TextButton(
+                    onPressed: () {},
+                    child: const Text('Register'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              const Divider(),
+              const SizedBox(height: 16),
+              OutlinedButton.icon(
+                onPressed: () {
+                  context.go('/clear-stack');
+                },
+                icon: const Icon(Icons.clear_all),
+                label: const Text('Use context.go() - clears stack, cannot go back to login'),
+              ),
+            ],
           ),
         ),
-      ),
-    );
-  }
-
-  void _showForgotPasswordDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Reset Password'),
-        content: const Text(
-          'Password reset link will be sent to your email address.'
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context); // Close dialog
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Reset link sent! Check your email.'),
-                  backgroundColor: Colors.green,
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-            ),
-            child: const Text('Send'),
-          ),
-        ],
       ),
     );
   }
